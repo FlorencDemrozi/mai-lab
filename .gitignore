@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.lighthouseci/
+test-results/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+~$*.docx
