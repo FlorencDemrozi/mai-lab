@@ -1,0 +1,53 @@
+---
+import Email from './Email.astro';
+import { href, pick, useT, type Locale } from '../i18n/ui';
+import type { Lab } from '../lib/lab';
+interface Props { locale: Locale; lab: Lab; altHref: string }
+const { locale, lab, altHref } = Astro.props;
+const t = useT(locale);
+const s = lab.settings;
+const other = locale === 'en' ? 'nb' : 'en';
+---
+<footer class="site-footer">
+  <div class="wrap cols">
+    <div>
+      <p class="brand">{s.lab_name}</p>
+      <p class="muted">{pick(s.lab_full_name, locale)} · {pick(s.tagline, locale)}</p>
+      <p class="muted">
+        {pick(s.department, locale)}<br />
+        <a href={s.institution_url}>{pick(s.institution, locale)}</a>
+      </p>
+    </div>
+    <div>
+      <h2 class="h">{t('footer.visit')}</h2>
+      <address>{s.address.map((line, i) => <>{line}{i < s.address.length - 1 && <br />}</>)}</address>
+      {s.visiting && <p class="muted">{pick(s.visiting, locale)}</p>}
+    </div>
+    <div>
+      <h2 class="h">{t('footer.contact')}</h2>
+      <p><Email address={s.lab_email} /></p>
+      <ul role="list" class="small">
+        <li><a href={href(locale, 'accessibility')}>{t('footer.accessibility')}</a></li>
+        <li><a href={altHref} hreflang={other} lang={other}>{t('lang.switch')}</a></li>
+        {s.social.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
+      </ul>
+      <p class="muted">{t('footer.privacy')}</p>
+    </div>
+  </div>
+</footer>
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    border-top: 1px solid var(--line);
+    background: var(--bg-sunken);
+    padding-block: var(--space-7);
+    font-size: var(--step--1);
+  }
+  .cols { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+  .brand { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); margin-bottom: var(--space-2); }
+  .h { font-size: var(--step-0); font-family: var(--font-body); letter-spacing: 0; margin-bottom: var(--space-3); }
+  .muted { color: var(--ink-soft); }
+  address { font-style: normal; margin-bottom: var(--space-4); }
+  .small li { margin-bottom: var(--space-2); }
+  a { color: var(--ink); }
+</style>

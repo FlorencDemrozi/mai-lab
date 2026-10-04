@@ -1,0 +1,23 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ResearcherCard from '../../../components/ResearcherCard.astro';
+import { loadLab } from '../../../lib/lab';
+import { localePaths, useT, type Locale } from '../../../i18n/ui';
+
+export const getStaticPaths = localePaths;
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lab = await loadLab();
+const people = lab.researchers.filter((r) => r.data.active);
+---
+<Base locale={locale} segments={['researchers']} title={t('researchers.title')} description={t('researchers.description')}>
+  <div class="wrap page-head">
+    <h1>{t('researchers.title')}</h1>
+    <p class="lede">{t('researchers.description')}</p>
+  </div>
+  <div class="wrap">
+    <ul class="grid" role="list">
+      {people.map((r) => <li><ResearcherCard researcher={r} locale={locale} level={2} /></li>)}
+    </ul>
+  </div>
+</Base>

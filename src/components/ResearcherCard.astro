@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import Email from './Email.astro';
+import Icon from './Icon.astro';
+import type { Researcher } from '../lib/lab';
+import { href, pick, useT, type Locale } from '../i18n/ui';
+interface Props { researcher: Researcher; locale: Locale; level?: 2 | 3 }
+const { researcher, locale, level = 3 } = Astro.props;
+const t = useT(locale);
+const r = researcher.data;
+const H = `h${level}` as 'h2' | 'h3';
+const initials = r.name
+  .split(/\s+/)
+  .filter((w) => /^\p{Lu}/u.test(w))
+  .map((w) => w[0])
+  .slice(0, 2)
+  .join('');
+---
+<article class="researcher">
+  {r.photo && r.consent ? (
+    <Image src={r.photo} alt="" width={160} height={160} class="avatar" />
+  ) : (
+    <span class="avatar initials" aria-hidden="true">{initials}</span>
+  )}
+  <div class="body">
+    <H class="name"><a href={href(locale, 'researchers', researcher.id)}>{r.name}</a></H>
+    {r.role && <p class="role">{pick(r.role, locale)}</p>}
+    {r.expertise.length > 0 && (
+      <ul class="tags" role="list" aria-label={t('researcher.expertise')}>
+        {r.expertise.map((e) => <li><span class="tag">{e}</span></li>)}
+      </ul>
+    )}
+    <div class="links">
+      {r.email && <Email address={r.email} label={t('researcher.emailTo', { name: r.name })} iconOnly />}
+      {r.profile_url && (
+        <a href={r.profile_url} class="profile">{t('researcher.profile')} <Icon name="external" size={16} /></a>
+      )}
+    </div>
+  </div>
+</article>
+<style>
+  .researcher {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    padding: var(--space-5);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    height: 100%;
+  }
+  .avatar { width: 4.5rem; height: 4.5rem; border-radius: 999px; object-fit: cover; }
+  .initials {
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--ink);
+    font-family: var(--font-display); font-weight: 600; font-size: var(--step-1);
+  }
+  .name { margin: 0 0 var(--space-1); font-size: var(--step-1); }
+  .name a { color: inherit; text-decoration: none; }
+  .name a:hover { text-decoration: underline; }
+  .role { color: var(--ink-soft); margin: 0 0 var(--space-3); }
+  .tags { list-style: none; padding: 0; margin: var(--space-2) 0 0; }
+  .links { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-3); }
+  .links:empty { display: none; }
+  .profile { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; }
+</style>

@@ -1,0 +1,110 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import StatusBadge from '../../../components/StatusBadge.astro';
+import Email from '../../../components/Email.astro';
+import { loadLab, type Device } from '../../../lib/lab';
+import { href, localeParam, LOCALES, pick, useT, type Locale } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+  const lab = await loadLab();
+  return LOCALES.flatMap((locale) =>
+    lab.devices.map((device) => ({ params: { locale: localeParam(locale), id: device.id }, props: { locale, device } })),
+  );
+}
+const { locale, device } = Astro.props as { locale: Locale; device: Device };
+const t = useT(locale);
+const lab = await loadLab();
+const d = device.data;
+const name = pick(d.name, locale);
+const { Content } = await render(device);
+const specs = Object.entries(d.specs);
+const projects = lab.device.projects(device);
+const pubs = lab.device.publications(device);
+---
+<Base locale={locale} segments={['devices', device.id]} title={name} description={pick(d.summary, locale)}>
+  <article>
+    <header class="wrap page-head">
+      <p class="eyebrow">
+        {lab.device.modalities(device).map((m, i) => (
+          <>{i > 0 && ' · '}<a href={href(locale, 'modalities', m.id)}>{pick(m.data.name, locale)}</a></>
+        ))}
+      </p>
+      <h1>{name}</h1>
+      <p><StatusBadge status={d.status} expected={d.expected} placeholder={d.placeholder} locale={locale} /></p>
+      <p class="lede">{pick(d.summary, locale)}</p>
+      {d.placeholder && <p class="notice">{t('status.unconfirmedHint')}</p>}
+    </header>
+
+    <div class="wrap layout">
+      <div class="main prose">
+        {d.image && <Image src={d.image} alt={pick(d.image_alt, locale)} widths={[480, 800, 1200]} sizes="(min-width: 60rem) 40rem, 100vw" class="photo" />}
+        <Content />
+        {projects.length > 0 && (
+          <section>
+            <h2>{t('device.projects')}</h2>
+            <ul>{projects.map((p) => <li>{pick(p.data.title, locale)}{p.data.acronym && ` (${p.data.acronym})`}</li>)}</ul>
+          </section>
+        )}
+        {pubs.length > 0 && (
+          <section>
+            <h2>{t('device.publications')}</h2>
+            <ul>{pubs.map((p) => <li>{p.data.authors.join(', ')}. <cite>{p.data.title}</cite>. {p.data.venue}, {p.data.year}.{p.data.doi && <> <a href={`https://doi.org/${p.data.doi}`}>doi:{p.data.doi}</a></>}</li>)}</ul>
+          </section>
+        )}
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h2 class="h">{t('device.researchers')}</h2>
+          <ul role="list" class="people">
+            {lab.device.researchers(device).map((r) => (
+              <li>
+                <a href={href(locale, 'researchers', r.id)}>{r.data.name}</a>
+                {r.data.email && <Email address={r.data.email} label={t('researcher.emailTo', { name: r.data.name })} iconOnly />}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {lab.device.applications(device).length > 0 && (
+          <section class="panel">
+            <h2 class="h">{t('device.applications')}</h2>
+            <ul class="tags" role="list">
+              {lab.device.applications(device).map((a) => <li><a class="tag" href={href(locale, 'applications', a.id)}>{pick(a.data.name, locale)}</a></li>)}
+            </ul>
+          </section>
+        )}
+
+        <section class="panel">
+          <h2 class="h">{t('device.specs')}</h2>
+          <dl class="meta-list">
+            {d.manufacturer && <><dt>{t('device.manufacturer')}</dt><dd>{d.manufacturer}</dd></>}
+            {d.model && <><dt>{t('device.model')}</dt><dd>{d.model}</dd></>}
+            {d.quantity && <><dt>{t('device.quantity')}</dt><dd>{d.quantity}</dd></>}
+            <dt>{t('device.sync')}</dt><dd>{t(`sync.${d.sync}`)}</dd>
+            {specs.map(([k, v]) => <><dt>{k.replaceAll('_', ' ')}</dt><dd>{Array.isArray(v) ? v.join(' × ') : String(v)}</dd></>)}
+            {d.acquired && <><dt>{t('device.acquired')}</dt><dd>{d.acquired.toISOString().slice(0, 10)}</dd></>}
+          </dl>
+          {d.booking_notes && <p class="booking"><strong>{t('device.booking')}:</strong> {pick(d.booking_notes, locale)}</p>}
+        </section>
+      </aside>
+    </div>
+  </article>
+</Base>
+<style>
+  .eyebrow a { color: inherit; }
+  .layout { display: grid; gap: var(--space-6); }
+  .side { display: grid; gap: var(--space-4); align-content: start; }
+  .h { font-size: var(--step-0); font-family: var(--font-body); letter-spacing: 0; margin-bottom: var(--space-3); }
+  .people { display: grid; gap: var(--space-2); }
+  .people li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .tags { list-style: none; padding: 0; margin: 0; }
+  .meta-list dt::first-letter { text-transform: uppercase; }
+  .booking { margin: var(--space-4) 0 0; }
+  .photo { width: 100%; height: auto; border-radius: var(--radius); margin-bottom: var(--space-5); }
+  @media (min-width: 60rem) {
+    .layout { grid-template-columns: minmax(0, 1fr) 22rem; }
+  }
+</style>

@@ -1,0 +1,122 @@
+/*
+ * Design tokens. Light is the default; dark follows the OS unless the visitor picks a
+ * theme (data-theme on <html>).
+ *
+ * PROVISIONAL: UiS visual-profile colours/fonts are not confirmed yet (TODO-content.md).
+ * --accent is the MMAI accent used for highlights and device glow.
+ * Text/background pairs are checked for WCAG AA by scripts/contrast.mjs.
+ */
+:root {
+  color-scheme: light;
+
+  --bg: #f5f6f8;
+  --bg-raised: #ffffff;
+  --bg-sunken: #e9ecf1;
+  --ink: #0b1220;
+  --ink-soft: #4a5468;
+  --line: #d3d8e1;
+  --line-strong: #7a8396;
+
+  --accent: #006d77;
+  --accent-ink: #ffffff;
+  --accent-soft: #d5f1f0;
+  --glow: #12c9bb;
+
+  --status-installed: #1c7a3e;
+  --status-installed-bg: #e1f3e7;
+  --status-acquiring: #8a5300;
+  --status-acquiring-bg: #fbeed6;
+  --status-planned: #4b4f9a;
+  --status-planned-bg: #e7e8f7;
+  --status-retired: #5c6270;
+  --status-retired-bg: #eceef1;
+  --unconfirmed: #8a3b00;
+
+  --focus: #1f5fd6;
+
+  --font-display: 'Space Grotesk Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.45rem);
+  --step-2: clamp(1.45rem, 1.25rem + 1vw, 2rem);
+  --step-3: clamp(1.8rem, 1.4rem + 2vw, 3rem);
+  --step-4: clamp(2.4rem, 1.6rem + 4vw, 5rem);
+  --step-5: clamp(3rem, 1.8rem + 6.5vw, 7.5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 5rem;
+  --space-9: 8rem;
+
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --max: 72rem;
+  --max-text: 42rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+
+  --shadow: 0 1px 2px rgb(11 18 32 / 0.06), 0 8px 24px rgb(11 18 32 / 0.08);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #070b14;
+    --bg-raised: #0f1626;
+    --bg-sunken: #0b111e;
+    --ink: #e8edf5;
+    --ink-soft: #a3aec2;
+    --line: #233049;
+    --line-strong: #6a7a99;
+    --accent: #4fe0d2;
+    --accent-ink: #04201e;
+    --accent-soft: #0d3433;
+    --glow: #4fe0d2;
+    --status-installed: #6fdc96;
+    --status-installed-bg: #0f2a1a;
+    --status-acquiring: #f5be63;
+    --status-acquiring-bg: #2e2109;
+    --status-planned: #b3b7ff;
+    --status-planned-bg: #1d1f3d;
+    --status-retired: #a8afbd;
+    --status-retired-bg: #1b2130;
+    --unconfirmed: #ffab70;
+    --focus: #8ab4ff;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #070b14;
+  --bg-raised: #0f1626;
+  --bg-sunken: #0b111e;
+  --ink: #e8edf5;
+  --ink-soft: #a3aec2;
+  --line: #233049;
+  --line-strong: #6a7a99;
+  --accent: #4fe0d2;
+  --accent-ink: #04201e;
+  --accent-soft: #0d3433;
+  --glow: #4fe0d2;
+  --status-installed: #6fdc96;
+  --status-installed-bg: #0f2a1a;
+  --status-acquiring: #f5be63;
+  --status-acquiring-bg: #2e2109;
+  --status-planned: #b3b7ff;
+  --status-planned-bg: #1d1f3d;
+  --status-retired: #a8afbd;
+  --status-retired-bg: #1b2130;
+  --unconfirmed: #ffab70;
+  --focus: #8ab4ff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+}

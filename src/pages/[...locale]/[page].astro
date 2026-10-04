@@ -1,0 +1,37 @@
+---
+/**
+ * Free-text pages from src/content/pages/<lang>/<page>.md (About, Accessibility, …).
+ * A missing Norwegian file falls back to the English one.
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { localeParam, LOCALES, type Locale } from '../../i18n/ui';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  const byId = new Map(pages.map((p) => [p.id, p]));
+  const slugs = [...new Set(pages.map((p) => p.id.split('/').slice(1).join('/')))];
+  return LOCALES.flatMap((locale) =>
+    slugs.map((page) => {
+      const entry = byId.get(`${locale}/${page}`) ?? byId.get(`en/${page}`);
+      if (!entry) throw new Error(`src/content/pages/en/${page}.md is missing (every page needs an English version).`);
+      return { params: { locale: localeParam(locale), page }, props: { locale, entry } };
+    }),
+  );
+}
+const { locale, entry } = Astro.props as { locale: Locale; entry: CollectionEntry<'pages'> };
+const { Content } = await render(entry);
+const page = Astro.params.page as string;
+const fallback = !entry.id.startsWith(`${locale}/`);
+---
+<Base locale={locale} segments={[page]} title={entry.data.title} description={entry.data.description}>
+  <article class="wrap">
+    <header class="page-head">
+      <h1>{entry.data.title}</h1>
+      <p class="lede">{entry.data.description}</p>
+    </header>
+    <div class="prose" lang={fallback ? 'en' : undefined}>
+      <Content />
+    </div>
+  </article>
+</Base>

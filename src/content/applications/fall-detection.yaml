@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Fall Detection", no: "Fallgjenkjenning" }
+description: { en: "Detecting and predicting falls with wearable and contactless sensors." }
+order: 4
+placeholder: true

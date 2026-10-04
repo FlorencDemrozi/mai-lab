@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Upper-body Movement", no: "Overkroppsbevegelse" }
+description: { en: "Reaching, grasping and fine arm and hand movement." }
+order: 7
+placeholder: true

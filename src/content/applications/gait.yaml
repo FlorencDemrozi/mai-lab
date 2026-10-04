@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Gait & Mobility", no: "Gange og mobilitet" }
+description: { en: "How people walk and move, measured from full-body kinematics down to foot pressure." }
+order: 1
+placeholder: true

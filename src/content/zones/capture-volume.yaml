@@ -1,0 +1,6 @@
+name: { en: "OptiTrack capture volume", no: "OptiTrack opptaksområde" }
+description: { en: "The full 5 × 8 m area covered by the 12 ceiling cameras." }
+# Origin and placement in the room are placeholders until the floor plan arrives.
+rect: { x: 0, y: 0, width: 5, depth: 8 }
+devices: [optitrack]
+placeholder: true

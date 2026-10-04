@@ -1,0 +1,40 @@
+---
+/**
+ * A working mailto: link with light obfuscation: the address is written as HTML character
+ * references, so simple scrapers miss it while the link works with one click and no JS.
+ */
+import Icon from './Icon.astro';
+interface Props {
+  address: string;
+  /** Accessible name / visible text. Defaults to the address itself. */
+  label?: string;
+  /** Show only the envelope icon (label becomes the accessible name). */
+  iconOnly?: boolean;
+  class?: string;
+}
+const { address, label, iconOnly = false, class: cls } = Astro.props;
+const encode = (s: string) => [...s].map((c) => `&#${c.codePointAt(0)};`).join('');
+const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.codePointAt(0)};`);
+const href = encode(`mailto:${address}`);
+const text = label ? escapeHtml(label) : encode(address);
+---
+{iconOnly ? (
+  <Fragment set:html={`<a class="email email-icon ${cls ?? ''}" href="${href}" aria-label="${text}" title="${text}">`} />
+) : (
+  <Fragment set:html={`<a class="email ${cls ?? ''}" href="${href}">`} />
+)}
+<Icon name="mail" size={18} />
+{!iconOnly && <Fragment set:html={`<span>${text}</span>`} />}
+<Fragment set:html="</a>" />
+<style is:global>
+  .email { display: inline-flex; align-items: center; gap: 0.4em; }
+  .email-icon {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .email-icon:hover { border-color: var(--accent); color: var(--accent); }
+</style>

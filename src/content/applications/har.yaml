@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Human Activity Recognition", no: "Gjenkjenning av aktivitet" }
+description: { en: "Recognising what people do from wearable, ambient and camera-based sensing." }
+order: 3
+placeholder: true

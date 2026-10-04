@@ -1,0 +1,51 @@
+---
+import Base from '../../../layouts/Base.astro';
+import DeviceCard from '../../../components/DeviceCard.astro';
+import ResearcherCard from '../../../components/ResearcherCard.astro';
+import StatusCounts from '../../../components/StatusCounts.astro';
+import { loadLab, statusCounts, type Application } from '../../../lib/lab';
+import { localeParam, LOCALES, pick, useT, type Locale } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+  const lab = await loadLab();
+  return LOCALES.flatMap((locale) =>
+    lab.applications.map((application) => ({
+      params: { locale: localeParam(locale), id: application.id },
+      props: { locale, application },
+    })),
+  );
+}
+const { locale, application } = Astro.props as { locale: Locale; application: Application };
+const t = useT(locale);
+const lab = await loadLab();
+const name = pick(application.data.name, locale);
+const devices = lab.application.devices(application);
+const people = lab.application.researchers(application);
+const projects = lab.application.projects(application);
+---
+<Base locale={locale} segments={['applications', application.id]} title={name} description={pick(application.data.description, locale)}>
+  <header class="wrap page-head">
+    <p class="eyebrow">{t('applications.title')}</p>
+    <h1>{name}</h1>
+    <p class="lede">{pick(application.data.description, locale)}</p>
+    <StatusCounts counts={statusCounts(devices)} locale={locale} />
+  </header>
+  <div class="wrap">
+    <section class="section" aria-labelledby="sys-h">
+      <h2 id="sys-h">{t('application.devices')}</h2>
+      <ul class="grid" role="list">{devices.map((d) => <li><DeviceCard device={d} lab={lab} locale={locale} /></li>)}</ul>
+    </section>
+    {people.length > 0 && (
+      <section class="section" aria-labelledby="people-h">
+        <h2 id="people-h">{t('application.researchers')}</h2>
+        <ul class="grid" role="list">{people.map((r) => <li><ResearcherCard researcher={r} locale={locale} /></li>)}</ul>
+      </section>
+    )}
+    {projects.length > 0 && (
+      <section class="section">
+        <h2>{t('device.projects')}</h2>
+        <ul>{projects.map((p) => <li>{pick(p.data.title, locale)}</li>)}</ul>
+      </section>
+    )}
+  </div>
+</Base>

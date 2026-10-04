@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Wearable AI", no: "Kroppsnær KI" }
+description: { en: "AI models that run on, or learn from, body-worn devices." }
+order: 11
+placeholder: true

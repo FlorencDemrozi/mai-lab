@@ -8,9 +8,18 @@ Missing real content is tracked in `TODO-content.md`.
 
 ## Repository layout
 
-- `webpage/` — the **old** hand-written static site (archive only; do not edit, do not build on it).
+- `webpage/` — the **old** hand-written static site (archive only; do not edit, do not build on it). Also git tag `old-site`.
 - `docs/` — requirements brief.
-- New site: Astro project (see REQUIREMENTS §5 for the target structure).
+- New site: Astro 7 project at the repo root. README.md has the layout and content templates.
+  - `src/content.config.ts` — Zod schemas (import `z` from `astro/zod`; Zod 4 API).
+  - `src/lib/lab.ts` — `loadLab()`: loads all collections once, checks cross-file ids, computes reverse links. Pages get data from here, not from `getCollection` directly.
+  - `src/pages/[...locale]/` — every route once per locale (`locale` param undefined = English at `/`, `no` = `/no/`). Build links with `href(locale, ...segments)` from `src/i18n/ui.ts` (handles base path + trailing slash).
+  - `DeviceCard.astro` is THE device card — reuse it in the twin layers.
+
+## Commands
+
+`npm run dev` · `npm run build` (also validates content) · `npm run check` · `npm test` (contrast + links + axe; needs `npx playwright install chromium`) · `npm run test:lighthouse`.
+On Windows Git Bash, prefix env vars containing paths with `MSYS_NO_PATHCONV=1` (e.g. `BASE_PATH=/x/`).
 
 ## Working mode
 
@@ -31,7 +40,9 @@ Missing real content is tracked in `TODO-content.md`.
 - Status is shown as a **text badge** (never colour alone) everywhere a device appears.
   `planned`/`acquiring` are never presented as available; `retired` is hidden from lab views.
 - `twin_object` is the only link between content and the 3D/2D scene. A device without a twin shape still appears everywhere else and is flagged in the build log.
-- Bilingual fields `{ en, no }`; missing `no` falls back to `en`.
+- Bilingual fields `{ en, no }` (or a plain string = English); missing `no` falls back to `en`.
+- Devices carry `modalities: [...]` (array, ≥1) — not the singular `modality` from the brief's example.
+- Applications store no relations; their devices/researchers are derived from device files.
 - Placeholder images and dummy data must be clearly marked (`placeholder: true` / `TODO` in the file) and listed in `TODO-content.md`.
 - Motion capture is **OptiTrack** (12 ceiling cameras, ~5 × 8 m volume). The old site's "Qualisys" is wrong.
 

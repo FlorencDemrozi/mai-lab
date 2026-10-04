@@ -1,0 +1,82 @@
+---
+/**
+ * The one device card used everywhere: lists, application views and (Phase 2–3) the
+ * digital-twin hotspot/3D layers. Content comes only from the device file.
+ */
+import Icon from './Icon.astro';
+import StatusBadge from './StatusBadge.astro';
+import Email from './Email.astro';
+import type { Device, Lab } from '../lib/lab';
+import { href, pick, useT, type Locale } from '../i18n/ui';
+interface Props {
+  device: Device;
+  lab: Lab;
+  locale: Locale;
+  /** Heading level for the device name, to keep the page outline correct. */
+  level?: 2 | 3 | 4;
+}
+const { device, lab, locale, level = 3 } = Astro.props;
+const t = useT(locale);
+const d = device.data;
+const H = `h${level}` as 'h2' | 'h3' | 'h4';
+const apps = lab.device.applications(device);
+const people = lab.device.researchers(device);
+const name = pick(d.name, locale);
+---
+<article class="device-card" data-device={device.id} data-status={d.status} data-twin={d.twin_object}>
+  <div class="top">
+    <StatusBadge status={d.status} expected={d.expected} placeholder={d.placeholder} locale={locale} />
+  </div>
+  <H class="name"><a href={href(locale, 'devices', device.id)}>{name}</a></H>
+  <p class="summary">{pick(d.summary, locale)}</p>
+  {apps.length > 0 && (
+    <ul class="tags" role="list" aria-label={t('device.applications')}>
+      {apps.map((a) => <li><a class="tag" href={href(locale, 'applications', a.id)}>{pick(a.data.name, locale)}</a></li>)}
+    </ul>
+  )}
+  <ul class="people" role="list" aria-label={t('device.researchers')}>
+    {people.map((r) => (
+      <li>
+        <a href={href(locale, 'researchers', r.id)}>{r.data.name}</a>
+        {r.data.email && <Email address={r.data.email} label={t('researcher.emailTo', { name: r.data.name })} iconOnly />}
+      </li>
+    ))}
+  </ul>
+  <a class="more" href={href(locale, 'devices', device.id)} aria-label={`${t('device.more')}: ${name}`}>
+    {t('device.more')} <Icon name="arrow" size={18} />
+  </a>
+</article>
+<style>
+  .device-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-5);
+    height: 100%;
+  }
+  .device-card[data-status='planned'],
+  .device-card[data-status='acquiring'] {
+    border-style: dashed;
+    border-color: var(--line-strong);
+  }
+  .name { margin: 0; font-size: var(--step-1); }
+  .name a { color: inherit; text-decoration: none; }
+  .name a:hover { text-decoration: underline; }
+  .summary { margin: 0; color: var(--ink-soft); }
+  .people { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); list-style: none; margin: 0; padding: 0; }
+  .people li { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .tags { list-style: none; margin: 0; padding: 0; }
+  .more {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 44px;
+  }
+  .more:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,34 @@
+---
+import Base from '../../../layouts/Base.astro';
+import StatusCounts from '../../../components/StatusCounts.astro';
+import { loadLab, statusCounts } from '../../../lib/lab';
+import { href, localePaths, pick, useT, type Locale } from '../../../i18n/ui';
+
+export const getStaticPaths = localePaths;
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lab = await loadLab();
+---
+<Base locale={locale} segments={['applications']} title={t('applications.title')} description={t('applications.description')}>
+  <div class="wrap page-head">
+    <h1>{t('applications.title')}</h1>
+    <p class="lede">{t('applications.description')}</p>
+  </div>
+  <div class="wrap">
+    <ul class="grid" role="list">
+      {lab.applications.map((a) => (
+        <li class="panel item">
+          <h2 class="name"><a href={href(locale, 'applications', a.id)}>{pick(a.data.name, locale)}</a></h2>
+          <p>{pick(a.data.description, locale)}</p>
+          <StatusCounts counts={statusCounts(lab.application.devices(a))} locale={locale} />
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
+<style>
+  .item { display: flex; flex-direction: column; gap: var(--space-2); }
+  .item p { margin: 0; color: var(--ink-soft); }
+  .name { font-size: var(--step-1); margin: 0; }
+  .name a { color: inherit; }
+</style>

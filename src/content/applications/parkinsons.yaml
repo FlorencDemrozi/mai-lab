@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Parkinson's Disease", no: "Parkinsons sykdom" }
+description: { en: "Objective, continuous measures of motor and non-motor symptoms in Parkinson's disease." }
+order: 2
+placeholder: true

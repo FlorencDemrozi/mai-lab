@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Digital Biomarkers", no: "Digitale biomarkører" }
+description: { en: "Turning sensor data into validated indicators of health and disease." }
+order: 10
+placeholder: true

@@ -1,0 +1,64 @@
+---
+/** Equipment catalogue: the one place a table view is fine (REQUIREMENTS §3.9). */
+import Base from '../../../layouts/Base.astro';
+import StatusBadge from '../../../components/StatusBadge.astro';
+import { loadLab } from '../../../lib/lab';
+import { href, localePaths, pick, useT, type Locale } from '../../../i18n/ui';
+
+export const getStaticPaths = localePaths;
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lab = await loadLab();
+---
+<Base locale={locale} segments={['devices']} title={t('catalogue.title')} description={t('catalogue.description')}>
+  <div class="wrap page-head">
+    <h1>{t('catalogue.title')}</h1>
+    <p class="lede">{t('catalogue.description')}</p>
+  </div>
+  <div class="wrap">
+    <div class="table-wrap" role="region" aria-labelledby="catalogue-caption" tabindex="0">
+      <table>
+        <caption id="catalogue-caption" class="sr-only">{t('catalogue.title')}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t('catalogue.name')}</th>
+            <th scope="col">{t('catalogue.status')}</th>
+            <th scope="col">{t('catalogue.modality')}</th>
+            <th scope="col">{t('catalogue.contact')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lab.labDevices.map((d) => (
+            <tr data-status={d.data.status}>
+              <th scope="row">
+                <a href={href(locale, 'devices', d.id)}>{pick(d.data.name, locale)}</a>
+                <span class="summary">{pick(d.data.summary, locale)}</span>
+              </th>
+              <td><StatusBadge status={d.data.status} expected={d.data.expected} placeholder={d.data.placeholder} locale={locale} /></td>
+              <td>
+                {lab.device.modalities(d).map((m, i) => (
+                  <>{i > 0 && ', '}<a href={href(locale, 'modalities', m.id)}>{pick(m.data.name, locale)}</a></>
+                ))}
+              </td>
+              <td>
+                {lab.device.researchers(d).map((r, i) => (
+                  <>{i > 0 && ', '}<a href={href(locale, 'researchers', r.id)}>{r.data.name}</a></>
+                ))}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Base>
+<style>
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-raised); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--step--1); min-width: 44rem; }
+  th, td { text-align: left; vertical-align: top; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+  thead th { font-weight: 600; color: var(--ink-soft); background: var(--bg-sunken); }
+  tbody tr:last-child > * { border-bottom: 0; }
+  tbody th { font-weight: 400; }
+  tbody th a { font-weight: 600; font-size: var(--step-0); }
+  .summary { display: block; color: var(--ink-soft); margin-top: var(--space-1); }
+</style>

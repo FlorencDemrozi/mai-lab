@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Sports & Performance", no: "Idrett og prestasjon" }
+description: { en: "Performance, load and technique in sport and exercise." }
+order: 9
+placeholder: true

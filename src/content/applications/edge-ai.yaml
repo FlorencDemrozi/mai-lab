@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Edge AI", no: "Edge-KI" }
+description: { en: "Real-time, privacy-preserving inference close to the sensor." }
+order: 12
+placeholder: true

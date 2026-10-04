@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Rehabilitation", no: "Rehabilitering" }
+description: { en: "Tracking recovery and guiding exercise with quantitative movement and muscle data." }
+order: 5
+placeholder: true

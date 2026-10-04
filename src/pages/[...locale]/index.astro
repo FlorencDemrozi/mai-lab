@@ -1,0 +1,77 @@
+---
+/**
+ * Interim home page (Phase 1). Phase 2 replaces this with the full visitor journey:
+ * hero render, digital twin, modality tiles, pipeline visual, application selector,
+ * researchers and Collaborate (REQUIREMENTS §3).
+ */
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import StatusCounts from '../../components/StatusCounts.astro';
+import { loadLab, statusCounts } from '../../lib/lab';
+import { href, localePaths, pick, useT, type Locale } from '../../i18n/ui';
+
+export const getStaticPaths = localePaths;
+const { locale } = Astro.props as { locale: Locale };
+const t = useT(locale);
+const lab = await loadLab();
+const s = lab.settings;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'ResearchOrganization',
+  name: `${s.lab_name} — ${pick(s.lab_full_name, 'en')}`,
+  alternateName: s.lab_name,
+  slogan: pick(s.tagline, 'en'),
+  url: new URL(href('en'), Astro.site).href,
+  parentOrganization: { '@type': 'CollegeOrUniversity', name: pick(s.institution, 'en'), url: s.institution_url },
+  address: s.address.join(', '),
+};
+---
+<Base locale={locale} description={`${pick(s.lab_full_name, locale)}, ${pick(s.institution, locale)}. ${pick(s.tagline, locale)}`} jsonLd={[org]}>
+  <section class="hero">
+    <div class="wrap">
+      <h1>
+        <span class="name">{s.lab_name}</span>
+        <span class="full">{pick(s.lab_full_name, locale)}</span>
+      </h1>
+      <p class="tagline">{pick(s.tagline, locale)}</p>
+      <p class="notice wip">{t('home.wip')}</p>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="mod-h">
+    <h2 id="mod-h">{t('modalities.title')}</h2>
+    <ul class="grid" role="list">
+      {lab.modalities.map((m) => (
+        <li>
+          <a class="tile" href={href(locale, 'modalities', m.id)}>
+            <Icon name={m.data.icon} size={32} />
+            <span class="tile-name">{pick(m.data.name, locale)}</span>
+            <span class="tile-sub">{pick(m.data.subtitle, locale)}</span>
+            <StatusCounts counts={statusCounts(lab.modality.devices(m))} locale={locale} />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="more"><a class="btn btn-ghost" href={href(locale, 'devices')}>{t('home.explore')} <Icon name="arrow" size={18} /></a></p>
+  </section>
+</Base>
+<style>
+  .hero { padding-block: var(--space-9) var(--space-7); }
+  h1 { font-size: var(--step-5); margin-bottom: var(--space-4); }
+  .name { display: block; }
+  .full { display: block; font-size: var(--step-2); font-weight: 500; color: var(--ink-soft); letter-spacing: -0.01em; margin-top: var(--space-2); }
+  .tagline { font-family: var(--font-display); font-size: var(--step-2); color: var(--accent); margin-bottom: var(--space-6); }
+  .wip { max-width: var(--max-text); }
+  .tile {
+    display: flex; flex-direction: column; gap: var(--space-2); height: 100%;
+    padding: var(--space-5); border-radius: var(--radius); border: 1px solid var(--line);
+    background: var(--bg-raised); color: var(--ink); text-decoration: none;
+    transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+  .tile:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .tile :global(.icon) { color: var(--accent); }
+  .tile-name { font-family: var(--font-display); font-size: var(--step-1); font-weight: 600; }
+  .tile-sub { color: var(--ink-soft); font-size: var(--step--1); flex: 1; }
+  .more { margin-top: var(--space-6); }
+</style>

@@ -1,0 +1,14 @@
+---
+import type { StatusCounts } from '../lib/lab';
+import { useT, type Locale } from '../i18n/ui';
+interface Props { counts: StatusCounts; locale: Locale }
+const { counts, locale } = Astro.props;
+const t = useT(locale);
+const parts = (['installed', 'acquiring', 'planned'] as const)
+  .filter((s) => counts[s] > 0)
+  .map((s) => t(`count.${s}`, { n: counts[s] }));
+---
+<p class="counts">{parts.length ? parts.join(' · ') : t('count.none')}</p>
+<style>
+  .counts { font-size: var(--step--1); color: var(--ink-soft); margin: 0; }
+</style>

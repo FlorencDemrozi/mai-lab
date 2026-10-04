@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { href, useT } from '../i18n/ui';
+const t = useT('en');
+---
+<Base locale="en" segments={['404']} title={t('notfound.title')} description={t('notfound.body')}>
+  <div class="wrap page-head">
+    <h1>{t('notfound.title')}</h1>
+    <p class="lede">{t('notfound.body')}</p>
+    <p><a class="btn btn-primary" href={href('en')}>{t('notfound.home')}</a></p>
+  </div>
+</Base>

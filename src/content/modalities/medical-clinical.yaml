@@ -1,0 +1,4 @@
+name: { en: "Medical & clinical sensing", no: "Medisinsk og klinisk måling" }
+subtitle: { en: "Portable ultrasound, low-field imaging and clinical-grade biomedical acquisition." }
+icon: medical
+order: 6

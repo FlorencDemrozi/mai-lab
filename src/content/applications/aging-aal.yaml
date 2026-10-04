@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Aging & AAL", no: "Aldring og velferdsteknologi" }
+description: { en: "Ambient assisted living: sensing that helps older adults live safely and independently." }
+order: 8
+placeholder: true

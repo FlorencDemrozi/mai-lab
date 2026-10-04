@@ -1,0 +1,5 @@
+# PLACEHOLDER description — see TODO-content.md
+name: { en: "Balance", no: "Balanse" }
+description: { en: "Postural control and stability, from force platforms to body-worn sensors." }
+order: 6
+placeholder: true

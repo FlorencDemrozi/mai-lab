@@ -1,0 +1,151 @@
+---
+import Icon from './Icon.astro';
+import { href, useT, type Locale } from '../i18n/ui';
+import type { Lab } from '../lib/lab';
+interface Props {
+  locale: Locale;
+  lab: Lab;
+  /** Same page in the other language. */
+  altHref: string;
+}
+const { locale, lab, altHref } = Astro.props;
+const t = useT(locale);
+const links = [
+  { href: href(locale, 'devices'), label: t('nav.equipment') },
+  { href: href(locale, 'applications'), label: t('nav.applications') },
+  { href: href(locale, 'researchers'), label: t('nav.researchers') },
+  { href: href(locale, 'about'), label: t('nav.about') },
+];
+const current = Astro.url.pathname;
+const encode = (s: string) => [...s].map((c) => `&#${c.codePointAt(0)};`).join('');
+const other = locale === 'en' ? 'nb' : 'en';
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href={href(locale)}>
+      <svg viewBox="0 0 40 24" width="34" height="20" aria-hidden="true">
+        <polyline points="0,12 9,12 12,3 16,21 20,12 40,12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span>{lab.settings.lab_name}</span>
+    </a>
+    <nav aria-label={t('nav.primary')}>
+      <!-- Wide screens: plain list. Narrow screens: <details> menu (works without JS).
+           Only one is displayed at a time, so screen readers never hear both. -->
+      <ul role="list" class="links-inline">
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={current.startsWith(l.href) ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+      </ul>
+      <details class="menu">
+        <summary><Icon name="menu" /><span class="sr-only">{t('nav.menu')}</span></summary>
+        <ul role="list" class="links">
+          {links.map((l) => (
+            <li><a href={l.href} aria-current={current.startsWith(l.href) ? 'page' : undefined}>{l.label}</a></li>
+          ))}
+        </ul>
+      </details>
+    </nav>
+    <div class="tools">
+      <a class="lang" href={altHref} hreflang={other} lang={other} aria-label={t('lang.switchLabel')}>{t('lang.switch')}</a>
+      <button class="theme" type="button" data-theme-toggle hidden aria-label={t('theme.toggle')}>
+        <Icon name="sun" class="i-sun" /><Icon name="moon" class="i-moon" />
+      </button>
+      <Fragment set:html={`<a class="btn btn-primary cta" href="${encode('mailto:' + lab.settings.lab_email)}">${t('nav.collaborate')}</a>`} />
+    </div>
+  </div>
+</header>
+<script>
+  // Theme toggle (progressive enhancement: hidden without JS; the OS theme still applies).
+  const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  if (btn) {
+    btn.hidden = false;
+    const root = document.documentElement;
+    const isDark = () =>
+      root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const sync = () => btn.setAttribute('aria-pressed', String(isDark()));
+    sync();
+    btn.addEventListener('click', () => {
+      const next = isDark() ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* storage blocked: theme lasts for this page only */
+      }
+      sync();
+    });
+  }
+  // Mobile menu: Esc closes it and returns focus to the button.
+  const menu = document.querySelector<HTMLDetailsElement>('.menu');
+  document.addEventListener('keydown', (e) => {
+    if (menu && e.key === 'Escape' && menu.open) {
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    }
+  });
+</script>
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; position: relative; }
+  .logo {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-display); font-weight: 700; font-size: 1.15rem;
+    color: var(--ink); text-decoration: none; min-height: 44px;
+  }
+  .logo svg { color: var(--accent); }
+
+  .menu summary {
+    list-style: none; cursor: pointer; display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--ink);
+  }
+  .menu summary::-webkit-details-marker { display: none; }
+  .links {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--bg-raised); border-bottom: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: var(--space-3) var(--gutter); display: grid; gap: var(--space-1);
+  }
+  .links a {
+    display: block; padding: var(--space-3) 0; color: var(--ink);
+    text-decoration: none; font-weight: 500;
+  }
+  .links a:hover { text-decoration: underline; }
+  .links a[aria-current='page'] { color: var(--accent); text-decoration: underline; }
+  nav { margin-left: auto; }
+  .tools { display: flex; align-items: center; gap: var(--space-2); }
+  .lang {
+    display: inline-flex; align-items: center; min-height: 44px; padding-inline: var(--space-2);
+    color: var(--ink); font-size: var(--step--1); font-weight: 600; text-decoration: none;
+  }
+  .lang:hover { text-decoration: underline; }
+  .theme {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px;
+    background: transparent; border: 1px solid var(--line); color: var(--ink); cursor: pointer;
+  }
+  .theme[hidden] { display: none; }
+  .theme :global(.i-moon) { display: none; }
+  .theme[aria-pressed='true'] :global(.i-moon) { display: block; }
+  .theme[aria-pressed='true'] :global(.i-sun) { display: none; }
+  .tools :global(.cta) { display: none; }
+
+  .links-inline { display: none; }
+  .links-inline a {
+    display: inline-flex; align-items: center; min-height: 44px;
+    color: var(--ink); text-decoration: none; font-weight: 500;
+  }
+  .links-inline a:hover { text-decoration: underline; }
+  .links-inline a[aria-current='page'] { color: var(--accent); text-decoration: underline; }
+
+  @media (min-width: 56rem) {
+    nav { margin-right: var(--space-4); }
+    .menu { display: none; }
+    .links-inline { display: flex; gap: var(--space-5); }
+    .tools :global(.cta) { display: inline-flex; }
+  }
+</style>

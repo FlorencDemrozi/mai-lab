@@ -1,0 +1,108 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import DeviceCard from '../../../components/DeviceCard.astro';
+import Email from '../../../components/Email.astro';
+import Icon from '../../../components/Icon.astro';
+import { loadLab, type Researcher } from '../../../lib/lab';
+import { href, localeParam, LOCALES, pick, useT, type Locale } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+  const lab = await loadLab();
+  return LOCALES.flatMap((locale) =>
+    lab.researchers.map((researcher) => ({
+      params: { locale: localeParam(locale), id: researcher.id },
+      props: { locale, researcher },
+    })),
+  );
+}
+const { locale, researcher } = Astro.props as { locale: Locale; researcher: Researcher };
+const t = useT(locale);
+const lab = await loadLab();
+const r = researcher.data;
+const { Content } = await render(researcher);
+const devices = lab.researcher.devices(researcher);
+const apps = lab.researcher.applications(researcher);
+const projects = lab.researcher.projects(researcher);
+const pubs = lab.researcher.publications(researcher);
+const role = pick(r.role, locale);
+const description = [role, r.expertise.join(', ')].filter(Boolean).join(' — ') || r.name;
+
+// Email is left out of structured data on purpose, to limit scraping.
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: r.name,
+  jobTitle: role || undefined,
+  knowsAbout: r.expertise,
+  affiliation: { '@type': 'CollegeOrUniversity', name: pick(lab.settings.institution, 'en'), url: lab.settings.institution_url },
+  sameAs: [r.profile_url, r.orcid && `https://orcid.org/${r.orcid}`].filter(Boolean),
+};
+---
+<Base locale={locale} segments={['researchers', researcher.id]} title={r.name} description={description} jsonLd={[person]} ogType="profile">
+  <header class="wrap page-head head">
+    {r.photo && r.consent && <Image src={r.photo} alt="" width={240} height={240} class="photo" />}
+    <div>
+      <h1>{r.name}</h1>
+      {role && <p class="lede">{role}</p>}
+      {r.expertise.length > 0 && (
+        <ul class="tags" role="list" aria-label={t('researcher.expertise')}>
+          {r.expertise.map((e) => <li><span class="tag">{e}</span></li>)}
+        </ul>
+      )}
+      <p class="contact">
+        {r.email && <Email address={r.email} />}
+        {r.profile_url && <a href={r.profile_url}>{t('researcher.profile')} <Icon name="external" size={16} /></a>}
+        {r.orcid && <a href={`https://orcid.org/${r.orcid}`}>{t('researcher.orcid')} {r.orcid}</a>}
+      </p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="prose"><Content /></div>
+
+    <section class="section" aria-labelledby="devices-h">
+      <h2 id="devices-h">{t('researcher.devices')}</h2>
+      {devices.length ? (
+        <ul class="grid" role="list">{devices.map((d) => <li><DeviceCard device={d} lab={lab} locale={locale} /></li>)}</ul>
+      ) : (
+        <p class="muted">{t('researcher.none')}</p>
+      )}
+    </section>
+
+    {apps.length > 0 && (
+      <section class="section" aria-labelledby="apps-h">
+        <h2 id="apps-h">{t('researcher.applications')}</h2>
+        <ul class="tags" role="list">
+          {apps.map((a) => <li><a class="tag" href={href(locale, 'applications', a.id)}>{pick(a.data.name, locale)}</a></li>)}
+        </ul>
+      </section>
+    )}
+
+    {projects.length > 0 && (
+      <section class="section">
+        <h2>{t('device.projects')}</h2>
+        <ul>{projects.map((p) => <li>{pick(p.data.title, locale)}</li>)}</ul>
+      </section>
+    )}
+
+    {pubs.length > 0 && (
+      <section class="section">
+        <h2>{t('device.publications')}</h2>
+        <ul>{pubs.map((p) => <li>{p.data.authors.join(', ')}. <cite>{p.data.title}</cite>. {p.data.venue}, {p.data.year}.</li>)}</ul>
+      </section>
+    )}
+  </div>
+</Base>
+<style>
+  .head { display: grid; gap: var(--space-5); align-items: center; }
+  .photo { width: 10rem; height: 10rem; border-radius: 999px; object-fit: cover; }
+  .tags { list-style: none; padding: 0; margin: 0 0 var(--space-4); }
+  .contact { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: center; }
+  .contact a { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; }
+  .muted { color: var(--ink-soft); }
+  @media (min-width: 48rem) {
+    .head:has(.photo) { grid-template-columns: auto 1fr; }
+  }
+</style>

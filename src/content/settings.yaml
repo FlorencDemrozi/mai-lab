@@ -1,0 +1,19 @@
+# Site-wide settings. Exactly one entry, with the id "lab".
+lab:
+  lab_name: "MMAI Lab"
+  lab_full_name: { en: "Multimodal AI Lab", no: "Multimodal KI-lab" }
+  tagline: { en: "Sensing. Understanding. Improving Lives.", no: "Måle. Forstå. Forbedre liv." }
+  # PLACEHOLDER: replace with the shared lab address when it exists
+  lab_email: florenc.demrozi@uis.no
+  institution: { en: "University of Stavanger", no: "Universitetet i Stavanger" }
+  institution_url: https://www.uis.no/
+  department: { en: "Department of Electrical Engineering and Computer Science (IDE)", no: "Institutt for data- og elektroteknologi (IDE)" }
+  room: "KE E-470"
+  # PLACEHOLDER: confirm building name and postal address
+  address:
+    - "Kjølv Egelands hus, room KE E-470"
+    - "Kristine Bonnevies vei 22"
+    - "4021 Stavanger, Norway"
+  optitrack_area_m: [5, 8]
+  social: []
+  placeholder_fields: [lab_email, address, tagline.no]
